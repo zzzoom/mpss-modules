@@ -35,6 +35,8 @@
 
 /* code to send escape calls to uOS; meant to test the ring buffer */
 
+#include <linux/version.h>
+
 #include "mic_common.h"
 #include "mic/mic_dma_lib.h"
 #include "mic/mic_dma_api.h"
@@ -89,8 +91,13 @@ mic_pin_user_pages (void *data, struct page **pages, uint32_t len, int32_t *nf_p
 
 	// pin the user pages; use semaphores on linux for doing the same
 	down_read(&current->mm->mmap_sem);
-	*nf_pages = (int32_t)get_user_pages(current, current->mm, (uint64_t)data,
-			  nr_pages, PROT_WRITE, 1, pages, NULL);
+	*nf_pages = (int32_t)get_user_pages(current, current->mm, (uint64_t)data, nr_pages,
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,4,167)
+			  PROT_WRITE, 1,
+#else
+			  PROT_WRITE ? FOLL_WRITE | FOLL_FORCE : FOLL_FORCE,
+#endif
+			  pages, NULL);
 	up_read(&current->mm->mmap_sem);
 
 	// compare if the no of final pages is equal to no of requested pages

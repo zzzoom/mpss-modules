@@ -39,6 +39,7 @@
 #include <linux/sched.h>
 #include <linux/kref.h>
 #include <linux/module.h>
+#include <linux/version.h>
 #include "scif.h"
 #include "mic/micscif.h"
 #ifndef _MIC_SCIF_
@@ -1986,8 +1987,12 @@ retry:
 				mm,
 				(uint64_t)addr,
 				nr_pages,
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,4,167)
 				!!(prot & SCIF_PROT_WRITE),
 				0,
+#else
+				(prot & SCIF_PROT_WRITE) ? FOLL_WRITE : 0,
+#endif
 				pinned_pages->pages,
 				pinned_pages->vma);
 		up_write(&mm->mmap_sem);
