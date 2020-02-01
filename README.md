@@ -6,11 +6,11 @@ Intel MPSS kernel module
 Build with `make MIC_CARD_ARCH=k1om`.
 
 
-///////////////
+//////////////
 make MIC_CARD_ARCH=k1om -j 64
 sudo make install
 
 sudo depmod
 sudo modprobe mic
-////////////////////
+//////////////
 
